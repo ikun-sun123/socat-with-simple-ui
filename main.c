@@ -224,7 +224,7 @@ char* read_file_to_string(const char* filename) {
         fclose(file);
         return NULL;
     }
-
+    
     // 读取文件内容
     size_t bytes_read = fread(buffer, 1, file_size, file);
     buffer[bytes_read] = '\0';  // 添加字符串结束符
