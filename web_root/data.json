@@ -1,0 +1,1 @@
+[{"listen":"TCP6:8888","target":"TCP4:5500","host":"127.0.0.1","status":"inactive"}]

@@ -1,41 +1,38 @@
-# Makefile
+#Makefile
+# Development environment: Windows10 + MinGW64(v8.1.0)
+SHELL = cmd.exe
+
+GCC = D:\\Dev\\gcc\\64bit\\bin\\gcc.exe
 BUILD_DIR = build
-CC = D:/Dev/gcc/64bit/bin/gcc
-LDFLAGS = -lws2_32
+INC_PATH = . libs
+ARGS = -lws2_32
 
-# 源文件目录列表
-SRS_DIRS = . libs
+SRS_FILES = $(foreach dir,$(INC_PATH),$(wildcard $(dir)/*.c))
+OBJECTS = $(addprefix $(BUILD_DIR)/,$(notdir $(SRS_FILES:.c=.o)))
+TARGET = $(BUILD_DIR)/application.exe
 
-# 设置源文件搜索路径
-vpath %.c $(SRS_DIRS)
+vpath %.c $(INC_PATH)
 
-# 自动扫描所有目录中的 .c 文件
-SRS = $(foreach dir,$(SRS_DIRS),$(wildcard $(dir)/*.c))
-SRS := $(filter-out %api.c,$(SRS))  # 过滤掉所有路径下的 api.c
-
-TARGET = main.exe
-OBJS = $(addprefix $(BUILD_DIR)/,$(notdir $(SRS:.c=.o)))
-DLL_TARGET = api.dll
-
-all: build_dir $(TARGET) $(DLL_TARGET)
+all: build_dir $(TARGET)
 
 build_dir:
 	if not exist "$(BUILD_DIR)" mkdir $(BUILD_DIR)
 
-# 编译 DLL
-$(DLL_TARGET): api.c
-	$(CC) -shared -o $@ $< libs/cJSON.c libs/linkedlist.h -I. -Ilibs -Wall -DBUILD_DLL
+$(TARGET): $(OBJECTS)
+# 	$(GCC) -o $(TARGET) $(OBJECTS) $(ARGS)
+	$(GCC) -mwindows -o $(TARGET) $(OBJECTS) $(ARGS)
 
-# 通用编译规则
 $(BUILD_DIR)/%.o: %.c
-	$(CC) $(addprefix -I,$(SRS_DIRS)) -MMD -c $< -o $@
-
-# 链接主程序
-$(TARGET): $(OBJS)
-	$(CC) -mwindows -o $@ $(OBJS) $(LDFLAGS)
-# 	$(CC) -o $@ $(OBJS) $(LDFLAGS)
+	$(GCC) -MMD -c $< $(addprefix -I,$(INC_PATH)) -o $@
 
 clean:
-	rmdir /s /q $(BUILD_DIR)
+	if exist $(BUILD_DIR) rmdir /s /q $(BUILD_DIR)
+	if exist release rmdir /s /q release
 
-.PHONY: all clean
+release: clean all
+	if not exist release mkdir release
+	copy $(TARGET) release\$(notdir $(TARGET))
+	xcopy web_root release\web_root /E /I /H /Y
+	xcopy bin release\bin /E /I /H /Y
+
+.PHONY: all clean release
