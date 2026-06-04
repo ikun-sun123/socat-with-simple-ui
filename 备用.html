@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<!-- saved from url=(0080)file:///D:/SYS/Downloads/IPv4%E8%BD%AC%E6%8D%A2IPv6%E5%B7%A5%E5%85%B7/index.html -->
+<html lang="zh-CN"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>socat 命令助手</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(145deg, #eef2f7 0%, #e2e8f0 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            padding: 2rem 1rem;
+            color: #0f172a;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: #ffffff;
+            border-radius: 28px;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.02);
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+
+        .card-header {
+            padding: 1.5rem 2rem;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white;
+        }
+
+        .card-header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .card-header code {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 0.2rem 0.7rem;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            color: #cbd5e6;
+            font-weight: normal;
+            backdrop-filter: blur(4px);
+        }
+
+        .card-header p {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-top: 8px;
+        }
+
+        /* 双栏布局 */
+        .two-col {
+            display: flex;
+            gap: 1.8rem;
+            padding: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .panel {
+            flex: 1;
+            min-width: 260px;
+            background: #fefefe;
+            border-radius: 24px;
+            padding: 0.2rem 0;
+            transition: all 0.2s;
+        }
+
+        .panel-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #3b82f6;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 2px solid #eef2ff;
+            padding-bottom: 0.6rem;
+        }
+
+        .panel-title span {
+            background: #eef2ff;
+            padding: 0.1rem 0.5rem;
+            border-radius: 30px;
+            font-size: 0.65rem;
+            color: #1e40af;
+        }
+
+        .field {
+            margin-bottom: 1.3rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 0.4rem;
+            letter-spacing: 0.3px;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.7rem 0.9rem;
+            font-size: 0.85rem;
+            font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+            background: #fafcff;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 18px;
+            transition: 0.2s;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+            background: white;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 1.2rem;
+            background: #f8fafc;
+            padding: 0.4rem 0.8rem;
+            border-radius: 50px;
+            border: 1px solid #e2e8f0;
+            width: fit-content;
+        }
+
+        .radio-group label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+            font-size: 0.8rem;
+            margin-bottom: 0;
+            cursor: pointer;
+            color: #1e293b;
+        }
+
+        input[type="radio"] {
+            width: auto;
+            margin: 0;
+            accent-color: #3b82f6;
+        }
+
+        .hint {
+            font-size: 0.65rem;
+            color: #64748b;
+            margin-top: 0.3rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* 传输协议区块 - 与 IP 协议族、监听端口保持完全相同的 field 风格 */
+        .protocol-field {
+            margin-bottom: 1.3rem;
+        }
+
+        .protocol-radio-group {
+            display: flex;
+            gap: 1.2rem;
+            background: #f8fafc;
+            padding: 0.4rem 0.8rem;
+            border-radius: 50px;
+            border: 1px solid #e2e8f0;
+            width: fit-content;
+        }
+
+        .protocol-radio-group label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+            font-size: 0.8rem;
+            margin-bottom: 0;
+            cursor: pointer;
+            color: #1e293b;
+        }
+
+        .protocol-radio-group input {
+            width: auto;
+            margin: 0;
+            accent-color: #3b82f6;
+        }
+
+        /* 按钮区域 */
+        .gen-area {
+            margin: 0.5rem 2rem 1.2rem 2rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .gen-btn {
+            background: #0f172a;
+            color: white;
+            border: none;
+            padding: 0.7rem 2rem;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .gen-btn:hover {
+            background: #1e293b;
+            transform: translateY(-1px);
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+        }
+
+        /* 命令区域 */
+        .cmd-wrapper {
+            margin: 0 2rem 2rem 2rem;
+            background: #0b1120;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .cmd-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #111827;
+            padding: 0.7rem 1.2rem;
+            border-bottom: 1px solid #1e2a3a;
+        }
+
+        .cmd-bar span {
+            color: #94a3b8;
+            font-size: 0.7rem;
+            font-weight: 500;
+            font-family: monospace;
+            letter-spacing: 0.3px;
+        }
+
+        .copy-btn {
+            background: #3b82f6;
+            border: none;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 0.3rem 1rem;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .copy-btn:hover {
+            background: #2563eb;
+            transform: scale(0.96);
+        }
+
+        .cmd-pre {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.8rem;
+            background: #0b1120;
+            color: #cbd5e6;
+            padding: 1.2rem;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+            line-height: 1.5;
+            min-height: 80px;
+        }
+
+        /* Toast 通知 */
+        .toast {
+            position: fixed;
+            bottom: 28px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            color: white;
+            padding: 0.5rem 1.4rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            z-index: 1000;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+            pointer-events: none;
+            animation: fadeInOut 2.2s ease forwards;
+            backdrop-filter: blur(4px);
+        }
+
+        @keyframes fadeInOut {
+            0% {
+                opacity: 0;
+                transform: translateX(-50%) translateY(12px);
+            }
+
+            15% {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+
+            85% {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-8px);
+            }
+        }
+
+        .footnote {
+            margin: 0 2rem 1.8rem 2rem;
+            font-size: 0.7rem;
+            color: #475569;
+            background: #fafcff;
+            padding: 0.8rem 1rem;
+            border-radius: 20px;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .footnote code {
+            background: #eef2ff;
+            padding: 0.2rem 0.4rem;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+
+        @media (max-width: 700px) {
+            .two-col {
+                padding: 1.2rem;
+                gap: 1.2rem;
+            }
+
+            .cmd-wrapper,
+            .footnote,
+            .gen-area {
+                margin-left: 1rem;
+                margin-right: 1rem;
+            }
+
+            .radio-group,
+            .protocol-radio-group {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h1>
+                    🧬 socat 双栈转发器
+                    <code>TCP4/6 · UDP4/6</code>
+                </h1>
+                <p>监听侧 → 转发目标 · 固定 reuseaddr,fork · 专为 IPv4↔IPv6 跨栈通信设计</p>
+            </div>
+
+            <div class="two-col">
+                <!-- 左侧监听侧：包含 IP协议族 + 监听端口 + 传输协议 (风格完全统一) -->
+                <div class="panel">
+                    <div class="panel-title">
+                        🎧 监听侧 · 入口
+                        <span>Listen</span>
+                    </div>
+                    <!-- IP 协议族 (radio-group) -->
+                    <div class="field">
+                        <label>🌐 IP 协议族</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="listenFamily" value="4" checked=""> IPv4</label>
+                            <label><input type="radio" name="listenFamily" value="6"> IPv6</label>
+                        </div>
+                    </div>
+                    <!-- 监听端口 -->
+                    <div class="field">
+                        <label>📡 监听端口</label>
+                        <input type="number" id="listenPort" placeholder="例如 8080" step="1" min="1" max="65535">
+                        <div class="hint">
+                            <span>🔹</span> 必填，接收流量的本地端口
+                        </div>
+                    </div>
+                    <!-- 🔌 传输协议 —— 与上方 IP协议族、监听端口保持完全相同的风格 (field + 类似radio-group) -->
+                    <div class="protocol-field">
+                        <label>🔌 传输协议</label>
+                        <div class="protocol-radio-group">
+                            <label><input type="radio" name="globalProtoInline" value="TCP" checked=""> TCP
+                                (面向连接)</label>
+                            <label><input type="radio" name="globalProtoInline" value="UDP"> UDP (数据报)</label>
+                        </div>
+                        <div class="hint">
+                            <span>🔹</span> 作用于监听与转发两端，严格同族
+                        </div>
+                    </div>
+                    <!-- 辅助信息：自动绑定所有接口 -->
+
+                </div>
+
+                <!-- 右侧转发目标：保持原有风格，无传输协议选项 -->
+                <div class="panel">
+                    <div class="panel-title">
+                        🚀 转发目标 · 出口
+                        <span>Forward</span>
+                    </div>
+                    <div class="field">
+                        <label>🌐 IP 协议族</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="targetFamily" value="4"> IPv4</label>
+                            <label><input type="radio" name="targetFamily" value="6" checked=""> IPv6</label>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>🎯 目标主机</label>
+                        <input type="text" id="targetHost" placeholder="::1 或 2001:db8::1 (可选，默认[::1])">
+                        <div class="hint">
+                            <span>🔹</span> 不填则默认: IPv4→127.0.0.1 , IPv6→[::1]
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>🔀 目标端口</label>
+                        <input type="number" id="targetPort" placeholder="例如 5500" step="1" min="1" max="65535">
+                        <div class="hint">
+                            <span>🔹</span> 必填，转发到的远端端口
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 生成按钮 -->
+            <div class="gen-area">
+                <button class="gen-btn" id="generateBtn">⚡ 生成命令</button>
+            </div>
+
+            <!-- 命令展示区域 -->
+            <div class="cmd-wrapper">
+                <div class="cmd-bar">
+                    <span>$ socat 命令 (可直接复制执行)</span>
+                    <button class="copy-btn" id="copyBtn">📋 复制</button>
+                </div>
+                <div class="cmd-pre" id="cmdPreview">✨ 点击「生成命令」按钮，一键生成 socat 转发指令</div>
+            </div>
+
+            <div class="footnote">
+                💡 <strong>使用说明</strong><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;• 服务器请选择IPv6-&gt;IPv4，客户端相反<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;• 监听端口 / 目标端口 <strong>必填</strong><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;• 目标主机：服务器不填，客户端填写服务器的公网IPv6地址
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM 元素
+        const inlineProtoRadios = document.querySelectorAll('input[name="globalProtoInline"]');
+        const listenFamilyRadios = document.querySelectorAll('input[name="listenFamily"]');
+        const targetFamilyRadios = document.querySelectorAll('input[name="targetFamily"]');
+        const listenPortInput = document.getElementById('listenPort');
+        const targetHostInput = document.getElementById('targetHost');
+        const targetPortInput = document.getElementById('targetPort');
+        const generateBtn = document.getElementById('generateBtn');
+        const cmdPreviewDiv = document.getElementById('cmdPreview');
+        const copyBtn = document.getElementById('copyBtn');
+
+        // Toast 通知
+        function showToast(message, isError = false) {
+            const existingToast = document.querySelector('.toast');
+            if (existingToast) existingToast.remove();
+
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            if (isError) {
+                toast.style.background = '#dc2626';
+            } else {
+                toast.style.background = '#1f2937';
+                toast.style.boxShadow = '0 4px 14px rgba(0,0,0,0.2)';
+            }
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                if (toast.parentNode) toast.parentNode.removeChild(toast);
+            }, 2200);
+        }
+
+        function getSelectedValue(radios) {
+            for (let r of radios) if (r.checked) return r.value;
+            return 'TCP';  // safe fallback
+        }
+
+        function getPort(inputElement, fieldName) {
+            let port = inputElement.value.trim();
+            if (!port) {
+                throw new Error(`${fieldName} 不能为空`);
+            }
+            port = parseInt(port, 10);
+            if (isNaN(port) || port < 1 || port > 65535) {
+                throw new Error(`${fieldName} 必须是 1-65535 之间的数字`);
+            }
+            return port.toString();
+        }
+
+        function getTargetHost(targetFamily) {
+            let host = targetHostInput.value.trim();
+            if (!host) {
+                if (targetFamily === '4') {
+                    host = '127.0.0.1';
+                } else {
+                    host = '[::1]';
+                }
+            }
+            return host;
+        }
+
+        // 构建监听地址: 根据传输协议 + listenFamily，自动添加 reuseaddr,fork
+        function buildListenAddress(transport, listenFamily) {
+            const port = getPort(listenPortInput, '监听端口');
+            if (transport === 'TCP') {
+                const addrType = `TCP${listenFamily}-LISTEN`;
+                return `${addrType}:${port},reuseaddr,fork`;
+            } else { // UDP
+                const addrType = `UDP${listenFamily}-RECVFROM`;
+                return `${addrType}:${port},reuseaddr,fork`;
+            }
+        }
+
+        // 格式化目标主机 (IPv6 带括号)
+        function formatHostForTarget(host, targetFamily) {
+            let formattedHost = host.trim();
+            if (targetFamily === '6') {
+                // 已经是 [::1] 格式保留
+                if (formattedHost.startsWith('[') && formattedHost.endsWith(']')) {
+                    return formattedHost;
+                }
+                // 包含冒号则认为是IPv6地址需要加括号，也支持域名但为了安全加上括号
+                if (formattedHost.includes(':')) {
+                    return `[${formattedHost}]`;
+                } else {
+                    // 可能是类似 '::1' 或 localhost 等字符串；按照socat要求，IPv6文字必须加括号
+                    // 若用户填入 'localhost' 对于IPv6族也加括号, socat能够处理 [localhost] 但通常建议直接用地址
+                    return `[${formattedHost}]`;
+                }
+            } else {
+                // IPv4 族：去掉可能意外输入的方括号
+                if (formattedHost.startsWith('[') && formattedHost.endsWith(']')) {
+                    formattedHost = formattedHost.slice(1, -1);
+                }
+                return formattedHost;
+            }
+        }
+
+        // 构建转发地址: TCP4/6 host:port 或 UDP4/6-SENDTO host:port
+        function buildTargetAddress(transport, targetFamily) {
+            const port = getPort(targetPortInput, '目标端口');
+            let host = getTargetHost(targetFamily);
+            const formattedHost = formatHostForTarget(host, targetFamily);
+            if (transport === 'TCP') {
+                const prefix = `TCP${targetFamily}`;
+                return `${prefix}:${formattedHost}:${port}`;
+            } else {
+                // UDP: 使用 UDP-SENDTO (适配标准socat用法)
+                const prefix = `UDP${targetFamily}-SENDTO`;
+                return `${prefix}:${formattedHost}:${port}`;
+            }
+        }
+
+        function generateCommand() {
+            const transport = getSelectedValue(inlineProtoRadios);   // TCP / UDP
+            const listenFamily = getSelectedValue(listenFamilyRadios);
+            const targetFamily = getSelectedValue(targetFamilyRadios);
+
+            const listenAddr = buildListenAddress(transport, listenFamily);
+            const targetAddr = buildTargetAddress(transport, targetFamily);
+            return `socat ${listenAddr} ${targetAddr}`;
+        }
+
+        function onGenerate() {
+            try {
+                const cmd = generateCommand();
+                cmdPreviewDiv.innerText = cmd;
+                showToast('✓ 命令已生成', false);
+            } catch (err) {
+                cmdPreviewDiv.innerText = `❌ ${err.message}`;
+                showToast(err.message, true);
+            }
+        }
+
+        async function copyCommand() {
+            const cmdText = cmdPreviewDiv.innerText;
+            if (!cmdText ||
+                cmdText === '✨ 点击「生成命令」按钮，一键生成 socat 转发指令' ||
+                cmdText.startsWith('❌')) {
+                showToast('⚠️ 没有可复制的命令，请先生成', true);
+                return;
+            }
+            try {
+                await navigator.clipboard.writeText(cmdText);
+                showToast('✅ 命令已复制到剪贴板', false);
+                const originalText = copyBtn.innerHTML;
+                copyBtn.innerHTML = '✓ 已复制';
+                setTimeout(() => { copyBtn.innerHTML = originalText; }, 1500);
+            } catch (err) {
+                try {
+                    const textarea = document.createElement('textarea');
+                    textarea.value = cmdText;
+                    textarea.style.position = 'fixed';
+                    textarea.style.top = '-9999px';
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    const success = document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                    if (success) {
+                        showToast('✅ 命令已复制', false);
+                        const originalText = copyBtn.innerHTML;
+                        copyBtn.innerHTML = '✓ 已复制';
+                        setTimeout(() => { copyBtn.innerHTML = originalText; }, 1500);
+                    } else throw new Error();
+                } catch (fallbackErr) {
+                    showToast('❌ 复制失败，请手动选择复制', true);
+                }
+            }
+        }
+
+        function updatePlaceholders() {
+            const targetFamily = getSelectedValue(targetFamilyRadios);
+            if (targetFamily === '4') {
+                targetHostInput.placeholder = '192.168.1.100 (可选，默认127.0.0.1)';
+            } else {
+                targetHostInput.placeholder = '::1 或 2001:db8::1 (可选，默认[::1])';
+            }
+        }
+
+        function setDefaultEmpty() {
+            listenPortInput.value = '';
+            targetHostInput.value = '';
+            targetPortInput.value = '';
+            // 监听侧IP族: IPv4 默认
+            for (let r of listenFamilyRadios) if (r.value === '4') r.checked = true;
+            // 目标侧IP族: IPv6 默认 (保留常用跨栈)
+            for (let r of targetFamilyRadios) if (r.value === '6') r.checked = true;
+            // 传输协议: TCP 默认
+            for (let r of inlineProtoRadios) if (r.value === 'TCP') r.checked = true;
+            updatePlaceholders();
+            cmdPreviewDiv.innerText = '✨ 点击「生成命令」按钮，一键生成 socat 转发指令';
+        }
+
+        function bindEvents() {
+            generateBtn.addEventListener('click', onGenerate);
+            copyBtn.addEventListener('click', copyCommand);
+            targetFamilyRadios.forEach(radio => radio.addEventListener('change', updatePlaceholders));
+            // 可选：监听侧协议或IP族变动时不清空，但保留占位符更新逻辑不变
+        }
+
+        function addKeyboardShortcut() {
+            const inputs = [listenPortInput, targetHostInput, targetPortInput];
+            inputs.forEach(inp => {
+                inp.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        onGenerate();
+                    }
+                });
+            });
+        }
+
+        function init() {
+            setDefaultEmpty();
+            bindEvents();
+            addKeyboardShortcut();
+        }
+        init();
+    </script>
+
+
+
+</body></html>
