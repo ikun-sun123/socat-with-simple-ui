@@ -9,7 +9,7 @@ ARGS = -lws2_32
 
 SRS_FILES = $(foreach dir,$(INC_PATH),$(wildcard $(dir)/*.c))
 OBJECTS = $(addprefix $(BUILD_DIR)/,$(notdir $(SRS_FILES:.c=.o)))
-TARGET = $(BUILD_DIR)/application.exe
+TARGET = $(BUILD_DIR)\application.exe
 
 vpath %.c $(INC_PATH)
 
