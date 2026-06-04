@@ -32,6 +32,7 @@ clean:
 release: clean all
 	if not exist release mkdir release
 	copy $(TARGET) release\$(notdir $(TARGET))
+	copy *.html release\*.html
 	xcopy web_root release\web_root /E /I /H /Y
 	xcopy bin release\bin /E /I /H /Y
 
