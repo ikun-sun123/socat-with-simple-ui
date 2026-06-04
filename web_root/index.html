@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>端口转发管理 · 运行中禁止删除</title>
+    <title>端口转发</title>
     <style>
         * {
             box-sizing: border-box;
@@ -391,7 +391,7 @@
 <body>
 <div class="container">
     <div class="header">
-        <h1>⚡ 端口转发规则 <small>运行中禁止删除</small></h1>
+        <h1>⚡ 端口转发管理面板 </h1>
         <button class="add-btn" id="openCreateBtn">✨ 新建规则</button>
     </div>
     <div class="table-wrapper">
@@ -435,8 +435,7 @@
             <div class="field-group">
                 <label>🌍 目标主机 <span style="font-weight: normal; font-size:0.7rem;">(IPv4 / IPv6)</span></label>
                 <div class="host-input-wrapper">
-                    <div class="host-input-icon">🖥️</div>
-                    <input type="text" id="targetHostInput" placeholder="例如 192.168.1.100 或 2001:db8::1，留空自动填充" autocomplete="off">
+                    <input type="text" id="targetHostInput" placeholder="本机或公网IPv4/6地址" autocomplete="off">
                 </div>
                 <div class="host-hint">
                     💡 留空自动填充默认地址： 
