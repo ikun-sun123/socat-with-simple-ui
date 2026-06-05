@@ -40,7 +40,7 @@ void fn(struct mg_connection* c, int ev, void* ev_data) {
         if (root == NULL) return;
         char* str = cJSON_PrintUnformatted(root);
         mg_http_reply(c, 200, "Content-Type: application/json; charset=utf-8\r\n", str);
-        cJSON_free(str);
+        free(str);
     }
     else if (mg_match(hm->uri, mg_str("/add"), NULL)) {
         //hm->body.buf {"listen":"TCP6:8989","target":"TCP4:5500","host":"127.0.0.1","status":"inactive"}
@@ -300,13 +300,12 @@ int main(void) {
         tasks = tasks->next;
     }
     // 保存数据至文件
-    int size = cJSON_GetArraySize(root);
     cJSON* item;
-    while ((item = cJSON_GetArrayItem(root, --size))) {
+    cJSON_ArrayForEach(item, root){
         cJSON* new_item = cJSON_CreateString("inactive");
         cJSON_ReplaceItemInObject(item, "status", new_item);
     }
-    str = cJSON_PrintUnformatted(root);
+    str = cJSON_Print(root);
     write_string_to_file(data_file, str);
     free(str);
     // 释放堆内存
