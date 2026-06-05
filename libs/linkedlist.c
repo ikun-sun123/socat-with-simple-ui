@@ -53,14 +53,3 @@ void LinkedListFree(LinkedList* list) {
     list->data = NULL;
 }
 
-void LinkedListTraverse(LinkedList* list, int (*fn)(LinkedList* node, va_list args), ...) {
-    if (list == NULL || fn == NULL) return;
-    LinkedList* current = list->next;
-    va_list args;
-    va_start(args, fn);
-    while (current != NULL) {
-        if (fn(current, args) == 1) break;
-        current = current->next;
-    }
-    va_end(args);
-}

@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdarg.h>
 
 typedef struct LinkedList {
     int idx;        // 头节点：记录链表节点个数；普通节点：存储节点索引
