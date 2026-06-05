@@ -18,6 +18,6 @@ void LinkedListRemove(LinkedList* list, int idx);
 // 释放全部节点及其data指针指向的地址
 void LinkedListFree(LinkedList* list);
 
-// 遍历链表，并回调fn函数，每次将此次节点传递给fn
-// 当fn返回0时继续遍历，返回1时停止遍历
-void LinkedListTraverse(LinkedList* list, int (*fn)(LinkedList* node, va_list args), ...);
+// 请勿在循环中free或者改变item->next指针
+#define LinkedListForEach(item, list)\
+    for(item = (list != NULL) ? (list)->next : NULL; item != NULL; item = (item)->next)
