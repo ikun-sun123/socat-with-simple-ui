@@ -3,7 +3,7 @@
 #include <stdarg.h>
 
 typedef struct LinkedList {
-    int idx;        // 头节点：记录链表节点个数（最大索引+1）；普通节点：存储节点索引
+    int idx;        // 头节点：记录链表节点个数；普通节点：存储节点索引
     void* data;
     struct LinkedList* next;
 } LinkedList;
