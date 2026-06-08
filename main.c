@@ -65,27 +65,15 @@ void fn(struct mg_connection* c, int ev, void* ev_data) {
     else if (mg_match(hm->uri, mg_str("/toggle"), NULL)) {
         //hm->body.buf {"id":1,"status":"active"}
         cJSON* json = cJSON_Parse(hm->body.buf);
-        if (json == NULL) {
-            mg_http_reply(c, 200, "", http_reply_failed);
-            cJSON_Delete(json);
-            return;
-        }
+        if (json == NULL) goto Error_Reply;
         cJSON* item = cJSON_GetObjectItemCaseSensitive(json, "id");
-        if (item == NULL) {
-            mg_http_reply(c, 200, "", http_reply_failed);
-            cJSON_Delete(json);
-            return;
-        }
+        if (item == NULL) goto Error_DeleteJSON;
         int id = item->valueint;
-        if (id >= cJSON_GetArraySize(root)) {
-            mg_http_reply(c, 200, "", http_reply_failed);
-            cJSON_Delete(json);
-            return;
-        }
+        if (id >= cJSON_GetArraySize(root)) goto Error_DeleteJSON;
         cJSON* data = cJSON_GetArrayItem(root, id);
         //data {"listen":"TCP6:8989","target":"TCP4:5500","host":"127.0.0.1","status":"inactive"}
         cJSON* status = cJSON_GetObjectItemCaseSensitive(data, "status");
-        if (strcmp(status->valuestring, "active") == 0) {
+        if (strcmp(status->valuestring, "active") != 0) {
             LinkedList* current = tasks->next;
             while (current)
             {
@@ -108,11 +96,7 @@ void fn(struct mg_connection* c, int ev, void* ev_data) {
             return;
         }
         Task* task = (Task*)malloc(sizeof(Task));
-        if (task == NULL) {
-            mg_http_reply(c, 200, "", "{\"success\":false,\"message\":\"内存不足\"}");
-            cJSON_Delete(json);
-            return;
-        }
+        if (task == NULL) goto Error_DeleteJSON;
         cJSON* lis = cJSON_GetObjectItemCaseSensitive(data, "listen");
         cJSON* tar = cJSON_GetObjectItemCaseSensitive(data, "target");
         cJSON* host = cJSON_GetObjectItemCaseSensitive(data, "host");
@@ -130,18 +114,21 @@ void fn(struct mg_connection* c, int ev, void* ev_data) {
             sprintf(cmd, "%s\\bin\\socat.exe %s-RECVFROM:%d,reuseaddr,fork %s-SENDTO:%s:%d",
                 root_path, lisproc, lisport, tarproc, tarhost, tarport);
         STARTUPINFOA si = { sizeof(si) };
-        if (!CreateProcessA(NULL, cmd, NULL, NULL, 0, CREATE_NO_WINDOW, NULL, NULL, &si, &task->p)) {
-            free(task);
-            mg_http_reply(c, 200, "", "{\"success\":false,\"message\":\"执行任务失败\"}");
-            cJSON_Delete(json);
-            return;
-        }
+        if (!CreateProcessA(NULL, cmd, NULL, NULL, 0, CREATE_NO_WINDOW, NULL, NULL, &si, &task->p))
+            goto Error_FreeTask;
         task->idx = id;
         LinkedListAdd(tasks, task);
         cJSON* new_item = cJSON_CreateString("active");
         cJSON_ReplaceItemInObject(data, "status", new_item);
         mg_http_reply(c, 200, "", http_reply_success);
         cJSON_Delete(json);
+        return;
+    Error_FreeTask:
+        free(task);
+    Error_DeleteJSON:
+        cJSON_Delete(json);
+    Error_Reply:
+        mg_http_reply(c, 200, "", http_reply_failed);
     }
     else {
         struct mg_http_serve_opts opts = { .root_dir = web_path };
@@ -224,7 +211,7 @@ char* read_file_to_string(const char* filename) {
         fclose(file);
         return NULL;
     }
-    
+
     // 读取文件内容
     size_t bytes_read = fread(buffer, 1, file_size, file);
     buffer[bytes_read] = '\0';  // 添加字符串结束符
@@ -301,7 +288,7 @@ int main(void) {
     }
     // 保存数据至文件
     cJSON* item;
-    cJSON_ArrayForEach(item, root){
+    cJSON_ArrayForEach(item, root) {
         cJSON* new_item = cJSON_CreateString("inactive");
         cJSON_ReplaceItemInObject(item, "status", new_item);
     }
